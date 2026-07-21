@@ -1,5 +1,6 @@
 # These are supported funding model platforms
 # Updated to clarify the current funding destination for this repo.
+# Keeping the custom sponsor link pointed at the project donation page.
 
 github: [serverless-dns]
 patreon: # Replace with a single Patreon username
