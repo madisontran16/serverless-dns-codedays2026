@@ -28,9 +28,11 @@ globs = ["**/*.js"]
 LOG_LEVEL = "debug"
 WORKER_ENV = "development"
 CLOUD_PLATFORM = "cloudflare"
-# Set APP_BASE_URL to your deployment origin to enable blocklist independence.
-# Ex: APP_BASE_URL = "https://dns.example.com"
-# (leave unset to fall back to rethinkdns.com for configure/search redirects)
+# [blocklist-independence] Set this to your deployment's origin so /configure,
+# /search, and /genconfigtoken use your own domain instead of rethinkdns.com.
+# Replace with your actual domain before deploying, e.g.:
+#   APP_BASE_URL = "https://dns.example.com"
+APP_BASE_URL = "https://dns.example.com"
 
 ##################
 #------PROD------#

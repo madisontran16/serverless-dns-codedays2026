@@ -18,6 +18,8 @@ import * as rdnsutil from "../rdns-util.js";
 import { BlocklistFilter } from "../rethinkdns/filter.js";
 import { BlocklistWrapper } from "../rethinkdns/main.js";
 import * as token from "../users/auth-token.js";
+// [blocklist-independence] config-token encodes/decodes blocklist stamps and
+// builds self-hosted DNS setup URLs using APP_BASE_URL
 import * as configtoken from "../users/config-token.js";
 
 export class CommandControl {
@@ -164,7 +166,8 @@ export class CommandControl {
           reqUrl.hostname
         );
       } else if (command === "genconfigtoken") {
-        // generate a blocklist config token and return self-hosted DNS setup URLs
+        // [blocklist-independence] encodes chosen blocklists into a stamp and
+        // returns ready-to-use DoH/DoT/configure URLs for this deployment
         response.data.httpResponse = generateConfigToken(
           queryString,
           reqUrl.origin
@@ -210,6 +213,8 @@ function isRethinkDns(hostname) {
 }
 
 function searchRedirect(b64userflag) {
+  // [blocklist-independence] use self-hosted search page when APP_BASE_URL is set;
+  // otherwise fall back to rethinkdns.com/search
   const appBase = envutil.appBaseUrl();
   const u = appBase ? appBase + "/search" : "https://rethinkdns.com/search";
   const q = "?s=" + b64userflag; // must be base64 (not base32 aka dot)
@@ -221,6 +226,8 @@ function searchRedirect(b64userflag) {
 // max.rethinkdns.com/XYZ and it opens in a browser.
 // When APP_BASE_URL is set the user is redirected to their own configure page.
 function configRedirect(userFlag, origin, timestamp, highlight) {
+  // [blocklist-independence] redirect to APP_BASE_URL/configure when set so users
+  // stay on their own domain; fall back to rethinkdns.com/configure otherwise
   const appBase = envutil.appBaseUrl();
   const isSelfHosted = !util.emptyString(appBase);
   const u = isSelfHosted

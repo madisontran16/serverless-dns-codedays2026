@@ -471,7 +471,8 @@ export function gwip6() {
 }
 
 /**
- * Base URL of this deployment (e.g. "https://dns.example.com").
+ * [blocklist-independence] Base URL of this deployment (e.g. "https://dns.example.com").
+ * Set APP_BASE_URL in wrangler.toml [vars] to enable self-hosted redirects.
  * When empty, configure/search redirects fall back to rethinkdns.com.
  * @returns {string}
  */
