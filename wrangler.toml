@@ -28,6 +28,9 @@ globs = ["**/*.js"]
 LOG_LEVEL = "debug"
 WORKER_ENV = "development"
 CLOUD_PLATFORM = "cloudflare"
+# Set to your deployment origin to enable blocklist independence,
+# e.g. APP_BASE_URL = "https://dns.example.com"
+APP_BASE_URL = ""
 
 ##################
 #------PROD------#
@@ -52,6 +55,8 @@ routes = [
 LOG_LEVEL = "info"
 WORKER_ENV = "production"
 CLOUD_PLATFORM = "cloudflare"
+# Set APP_BASE_URL to your domain to redirect /configure to your own site
+APP_BASE_URL = ""
 
 ##################
 #------ONE-------#
@@ -76,6 +81,7 @@ WORKER_ENV = "production"
 CLOUD_PLATFORM = "cloudflare"
 CF_LOGPUSH_R2_PATH = "qlog/"
 AUTO_RENEW_BLOCKLISTS_OLDER_THAN = "42" # weeks
+APP_BASE_URL = ""
 
 ##################
 #-----SECRETS----#

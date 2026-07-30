@@ -43,6 +43,43 @@ For step-by-step instructions, refer:
 
 To setup blocklists, visit `https://<my-domain>.tld/configure` from your browser (it should load something similar to [RethinkDNS' _configure_ page](https://rethinkdns.com/configure)).
 
+### Blocklist independence
+
+By default, visiting `https://<my-domain>.tld/configure` redirects to `rethinkdns.com/configure`. If you want the configure and search pages to stay on **your own domain**, set the `APP_BASE_URL` environment variable to your deployment origin:
+
+```toml
+# wrangler.toml [vars] or [env.prod.vars]
+APP_BASE_URL = "https://dns.example.com"
+```
+
+Once set:
+- `/configure` redirects to `https://dns.example.com/configure?...`
+- `/search` redirects to `https://dns.example.com/search?...`
+
+#### Generate a config token for your domain
+
+Use the `/genconfigtoken` endpoint to encode your chosen blocklists into a DNS-ready stamp and get the setup URLs for your deployment:
+
+```bash
+# From a list of blocklist tag names
+curl 'https://dns.example.com/genconfigtoken?list=MTF,KBI&flagversion=1'
+
+# From an existing blockstamp
+curl 'https://dns.example.com/genconfigtoken?b64=1:YAYBACABEDAgAA=='
+```
+
+Response:
+```json
+{
+  "stamp": "1:YAYBACABEDAgAA==",
+  "dohUrl": "https://dns.example.com/1:YAYBACABEDAgAA==/dns-query",
+  "dotUrl": "https://dns.example.com  (DoT stamp: 1:YAYBACABEDAgAA==)",
+  "configureUrl": "https://dns.example.com/configure#1:YAYBACABEDAgAA=="
+}
+```
+
+The stamp is compatible with existing RethinkDNS clients — no client changes are needed.
+
 For help or assistance, feel free to [open an issue](https://github.com/celzero/docs/issues) or [submit a patch](https://github.com/celzero/docs).
 
 ---
