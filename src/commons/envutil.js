@@ -470,6 +470,16 @@ export function gwip6() {
   return envManager.get("GW_IP6") || "";
 }
 
+/**
+ * Base URL of this deployment (e.g. "https://dns.example.com").
+ * When empty, configure/search redirects fall back to rethinkdns.com.
+ * @returns {string}
+ */
+export function appBaseUrl() {
+  if (!envManager) return "";
+  return envManager.get("APP_BASE_URL") || "";
+}
+
 export function region() {
   if (!envManager) return "";
   return envManager.get("FLY_REGION") || "";

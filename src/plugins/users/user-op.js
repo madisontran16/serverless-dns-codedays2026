@@ -12,6 +12,7 @@ import { log } from "../../core/log.js";
 import * as pres from "../plugin-response.js";
 import * as rdnsutil from "../rdns-util.js";
 import * as token from "./auth-token.js";
+import * as configtoken from "./config-token.js";
 import { UserCache } from "./user-cache.js";
 
 // TODO: determine an approp cache-size
@@ -81,7 +82,7 @@ export class UserOp {
       let hasdata = rdnsutil.hasBlockstamp(r);
       if (hasflag && !hasdata) {
         // r not in cache
-        r = rdnsutil.unstamp(blocklistFlag); // r is never null, may throw ex
+        r = configtoken.decode(blocklistFlag); // r is never null, may throw ex
         hasdata = rdnsutil.hasBlockstamp(r);
 
         if (hasdata) {
