@@ -33,7 +33,7 @@
   "dependencies": {
     "@riaskov/mmap-io": "github:ignoramous/mmap-io#7f0925b989eac749ced440e51e616dfff4873ecd",
     "@serverless-dns/dns-parser": "github:serverless-dns/dns-parser#v2.1.2",
-    "@serverless-dns/lfu-cache": "github:serverless-dns/lfu-cache#v3.5.2",
+    "@serverless-dns/lfu-cache": "git+https://github.com/serverless-dns/lfu-cache.git#v3.5.2",
     "@serverless-dns/trie": "github:serverless-dns/trie#v0.0.17",
     "httpx-server": "^2.0.0",
     "node-polyfill-webpack-plugin": "^2.0.1",
