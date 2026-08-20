@@ -1,6 +1,18 @@
 name: 📩 PR
 
 on:
+name: 📩 PR
+
+on:
+  pull_request_target:
+    branches:
+      - "main"
+
+permissions:
+  contents: write
+
+concurrency:
+  # ... rest of file
   # "I am a workflow on the main branch's HEAD, target (base) of a PR"
   pull_request_target:
     branches:
