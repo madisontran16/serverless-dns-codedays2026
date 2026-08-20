@@ -23,6 +23,10 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
   cancel-in-progress: true
 
+ permissions:
+  contents: write
+  pull-requests: write
+
 env:
   # Base branch for the PR
   BASE_REF: ${{ github.base_ref }}
