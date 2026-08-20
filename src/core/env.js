@@ -245,6 +245,13 @@ const defaults = new Map(
       type: "string",
       default: "",
     },
+    // [blocklist-independence] base URL of this deployment, used to build
+    // self-hosted configure/search/DNS URLs. Ex: "https://dns.example.com".
+    // When empty, redirects fall back to rethinkdns.com.
+    APP_BASE_URL: {
+      type: "string",
+      default: "",
+    },
   })
 );
 

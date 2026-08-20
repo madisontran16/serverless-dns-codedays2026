@@ -18,6 +18,9 @@ import * as rdnsutil from "../rdns-util.js";
 import { BlocklistFilter } from "../rethinkdns/filter.js";
 import { BlocklistWrapper } from "../rethinkdns/main.js";
 import * as token from "../users/auth-token.js";
+// [blocklist-independence] config-token encodes/decodes blocklist stamps and
+// builds self-hosted DNS setup URLs using APP_BASE_URL
+import * as configtoken from "../users/config-token.js";
 
 export class CommandControl {
   constructor(blocklistWrapper, resolver, logPusher) {
@@ -37,6 +40,7 @@ export class CommandControl {
       "listtob64",
       "b64tolist",
       "genaccesskey",
+      "genconfigtoken",
       "analytics",
       "logs",
     ]);
@@ -161,6 +165,13 @@ export class CommandControl {
           queryString,
           reqUrl.hostname
         );
+      } else if (command === "genconfigtoken") {
+        // [blocklist-independence] encodes chosen blocklists into a stamp and
+        // returns ready-to-use DoH/DoT/configure URLs for this deployment
+        response.data.httpResponse = generateConfigToken(
+          queryString,
+          reqUrl.origin
+        );
       } else if (command === "gentlspsk") {
         response.data.httpResponse = await generateTlsPsk();
       } else if (command === "analytics") {
@@ -202,7 +213,10 @@ function isRethinkDns(hostname) {
 }
 
 function searchRedirect(b64userflag) {
-  const u = "https://rethinkdns.com/search";
+  // [blocklist-independence] use self-hosted search page when APP_BASE_URL is set;
+  // otherwise fall back to rethinkdns.com/search
+  const appBase = envutil.appBaseUrl();
+  const u = appBase ? appBase + "/search" : "https://rethinkdns.com/search";
   const q = "?s=" + b64userflag; // must be base64 (not base32 aka dot)
   return Response.redirect(u + q, 302);
 }
@@ -210,10 +224,22 @@ function searchRedirect(b64userflag) {
 // Redirect to the configure webpage when _no commands_ are set.
 // This happens when user clicks, say XYZ.max.rethinkdns.com or
 // max.rethinkdns.com/XYZ and it opens in a browser.
+// When APP_BASE_URL is set the user is redirected to their own configure page.
 function configRedirect(userFlag, origin, timestamp, highlight) {
-  const u = "https://rethinkdns.com/configure";
+  // [blocklist-independence] redirect to APP_BASE_URL/configure when set so users
+  // stay on their own domain; fall back to rethinkdns.com/configure otherwise
+  const appBase = envutil.appBaseUrl();
+  const isSelfHosted = !util.emptyString(appBase);
+  const u = isSelfHosted
+    ? appBase + "/configure"
+    : "https://rethinkdns.com/configure";
   let q = "?tstamp=" + timestamp;
-  q += !isRethinkDns(origin) ? "&v=ext&u=" + origin : "";
+  if (isSelfHosted) {
+    // self-hosted deployments always get the "ext" marker and their own origin
+    q += "&v=ext&u=" + (appBase || origin);
+  } else {
+    q += !isRethinkDns(origin) ? "&v=ext&u=" + origin : "";
+  }
   q += highlight ? "&s=added" : "";
   q += userFlag ? "#" + userFlag : "";
   return Response.redirect(u + q, 302);
@@ -467,6 +493,38 @@ function b64ToList(queryString, blocklistFilter) {
   r.listDetail = blocklistFilter.extract(r.list);
 
   return jsonResponse(r);
+}
+
+/**
+ * Generate a blocklist config token and return self-hosted DNS setup URLs.
+ * Accepts either a comma-separated list of tags (?list=TAG1,TAG2&flagversion=1)
+ * or an existing blockstamp (?b64=<stamp>).
+ *
+ * @param {URLSearchParams} queryString
+ * @param {string} requestOrigin - origin of the incoming request (fallback base URL)
+ * @returns {Response}
+ */
+function generateConfigToken(queryString, requestOrigin) {
+  // resolve base URL: prefer APP_BASE_URL, fall back to request origin
+  const baseUrl = envutil.appBaseUrl() || requestOrigin;
+
+  let stamp = queryString.get("b64") || "";
+
+  if (util.emptyString(stamp)) {
+    const list = queryString.get("list") || "";
+    const flagVersion = queryString.get("flagversion") || "1";
+    const tags = list ? list.split(",").map((t) => t.trim()).filter(Boolean) : [];
+    stamp = configtoken.encode(tags, flagVersion);
+  }
+
+  const urls = configtoken.setupUrls(baseUrl, stamp);
+
+  return jsonResponse({
+    stamp,
+    dohUrl: urls.doh,
+    dotUrl: urls.dot,
+    configureUrl: urls.configure,
+  });
 }
 
 /**
