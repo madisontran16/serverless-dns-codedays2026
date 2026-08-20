@@ -12,6 +12,9 @@ import { log } from "../../core/log.js";
 import * as pres from "../plugin-response.js";
 import * as rdnsutil from "../rdns-util.js";
 import * as token from "./auth-token.js";
+// [blocklist-independence] import config-token to decode blockstamps using the
+// same helper used in cc.js, keeping stamp parsing consistent across modules
+import * as configtoken from "./config-token.js";
 import { UserCache } from "./user-cache.js";
 
 // TODO: determine an approp cache-size
@@ -81,7 +84,7 @@ export class UserOp {
       let hasdata = rdnsutil.hasBlockstamp(r);
       if (hasflag && !hasdata) {
         // r not in cache
-        r = rdnsutil.unstamp(blocklistFlag); // r is never null, may throw ex
+        r = configtoken.decode(blocklistFlag); // [blocklist-independence] decode stamp via config-token (same as rdnsutil.unstamp)
         hasdata = rdnsutil.hasBlockstamp(r);
 
         if (hasdata) {

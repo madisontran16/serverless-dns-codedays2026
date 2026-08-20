@@ -1,5 +1,4 @@
-
-name = "serverless-dns-codedays2026"
+name = "madison-serverless-dns"
 main = "./dist/worker.js"
 workers_dev = true
 # logpush job is setup to capture from envs ending: log, pro, or one
@@ -29,6 +28,11 @@ globs = ["**/*.js"]
 LOG_LEVEL = "debug"
 WORKER_ENV = "development"
 CLOUD_PLATFORM = "cloudflare"
+# [blocklist-independence] Set this to your deployment's origin so /configure,
+# /search, and /genconfigtoken use your own domain instead of rethinkdns.com.
+# Replace with your actual domain before deploying, e.g.:
+#   APP_BASE_URL = "https://dns.example.com"
+APP_BASE_URL = "https://dns.example.com"
 
 ##################
 #------PROD------#
@@ -53,6 +57,7 @@ routes = [
 LOG_LEVEL = "info"
 WORKER_ENV = "production"
 CLOUD_PLATFORM = "cloudflare"
+# Set APP_BASE_URL = "https://your-domain.tld" to redirect /configure to your own site
 
 ##################
 #------ONE-------#
@@ -77,6 +82,7 @@ WORKER_ENV = "production"
 CLOUD_PLATFORM = "cloudflare"
 CF_LOGPUSH_R2_PATH = "qlog/"
 AUTO_RENEW_BLOCKLISTS_OLDER_THAN = "42" # weeks
+# Set APP_BASE_URL = "https://your-domain.tld" to enable blocklist independence
 
 ##################
 #-----SECRETS----#
